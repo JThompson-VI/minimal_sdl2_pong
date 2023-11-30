@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.12)
+
+set(PROJECT_NAME sdl2_pong)
+project(${PROJECT_NAME})
+
+set(SOURCE_FILES main.c)
+
+add_executable(${PROJECT_NAME} main.c)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
+
+
+include_directories(/opt/homebrew/Cellar/sdl2/2.28.2/include)
+link_directories(/opt/homebrew/Cellar/sdl2/2.28.2/lib)
+target_link_libraries(${PROJECT_NAME} /opt/homebrew/Cellar/sdl2/2.28.2/lib/libSDL2.dylib)
+
