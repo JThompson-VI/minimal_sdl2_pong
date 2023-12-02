@@ -6,6 +6,9 @@
 #include <sys/wait.h>
 #include <time.h>
 
+#include "utils/colors.h"
+#include "utils/misc.h"
+
 const int WIDTH = 640;
 const int HEIGHT = 400;
 const int BALL_SIZE = 10;
@@ -45,6 +48,7 @@ void renderPlayers(void);
 void renderBall(const Ball *ball);
 void mainLoop(SDL_Event);
 void updateScore(int player, int points);
+void serveBall(Ball *ball);
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -75,13 +79,15 @@ bool initialize(void) {
 }
 
 void update(float elapsed) {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
+  updateBall(&ball, elapsed);
+  updatePlayer(elapsed);
+}
+
+void draw(void) {
+  clearRenderer(renderer, BLACK);
 
   renderBall(&ball);
   renderPlayers();
-  updateBall(&ball, elapsed);
-  updatePlayer(elapsed);
 
   SDL_RenderPresent(renderer);
 }
@@ -117,6 +123,7 @@ int main(void) {
     Uint32 curTick = SDL_GetTicks();
     float elapsed = (curTick - lastTick) / 1000.0f;
     update(elapsed);
+    draw();
     lastTick = curTick;
   }
 }
@@ -144,7 +151,7 @@ void renderBall(const Ball *ball) {
       .w = size,
       .h = size,
   };
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  setDrawColor(renderer, WHITE);
   SDL_RenderFillRect(renderer, &rect);
 }
 
@@ -158,16 +165,16 @@ void updateBall(Ball *ball, float elapsed) {
   ball->y += ball->ySpeed * elapsed;
 
   if (ball->x < (float)BALL_SIZE / 2) {
-    // player2 score 
+    // player2 score
     updateScore(2, 1);
     ball->x = (float)WIDTH / 2 - (float)BALL_SIZE / 2;
-    ball->y = (float)HEIGHT / 2 - (float)BALL_SIZE /2;
+    ball->y = (float)HEIGHT / 2 - (float)BALL_SIZE / 2;
     isServed = false;
   } else if (ball->x > WIDTH - (float)BALL_SIZE / 2) {
-    // player1 score 
+    // player1 score
     updateScore(1, 1);
     ball->x = (float)WIDTH / 2 - (float)BALL_SIZE / 2;
-    ball->y = (float)HEIGHT / 2 - (float)BALL_SIZE /2;
+    ball->y = (float)HEIGHT / 2 - (float)BALL_SIZE / 2;
     isServed = false;
   }
 
@@ -186,7 +193,9 @@ void updatePlayer(float elapsed) {
   const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
 
   if (keyboardState[SDL_SCANCODE_SPACE]) {
-    isServed = true;
+    if (!isServed) {
+      serveBall(&ball);
+    }
   }
   if (keyboardState[SDL_SCANCODE_W] &&
       player1.yPosition - (float)PLAYER_HEIGHT / 2 > 0) {
@@ -234,7 +243,7 @@ void updatePlayer(float elapsed) {
 }
 
 void renderPlayers(void) {
-  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+  setDrawColor(renderer, PLAYER_1COLOR);
   SDL_Rect player1paddle = {
       .x = PLAYER_MARGIN,
       .y = (int)player1.yPosition - PLAYER_HEIGHT / 2,
@@ -243,7 +252,7 @@ void renderPlayers(void) {
   };
   SDL_RenderFillRect(renderer, &player1paddle);
 
-  SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+  setDrawColor(renderer, PLAYER_2COLOR);
   SDL_Rect player2paddle = {
       .x = WIDTH - PLAYER_MARGIN - PLAYER_WIDTH,
       .y = (int)player2.yPosition - PLAYER_HEIGHT / 2,
@@ -264,4 +273,10 @@ void updateScore(int player, int points) {
   char scoreLine[len + 1];
   snprintf(scoreLine, len + 1, fmt, player1.score, player2.score);
   SDL_SetWindowTitle(window, scoreLine);
+}
+
+void serveBall(Ball *ball) {
+  ball->xSpeed = ball->xSpeed * (coinFlip() ? 1 : -1);
+  ball->ySpeed = ball->ySpeed * (coinFlip() ? 1 : -1);
+  isServed = true;
 }
