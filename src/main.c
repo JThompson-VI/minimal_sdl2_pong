@@ -26,10 +26,10 @@ typedef struct Player {
   float yPosition;
 } Player;
 
-static const int PLAYER_WIDTH = 20;
+static const int PLAYER_WIDTH = 10;
 static const int PLAYER_HEIGHT = 75;
 static const int PLAYER_MARGIN = 10;
-static const float PLAYER_MOVE_SPEED = 150.0f;
+static const float PLAYER_MOVE_SPEED = 300.0f;
 static bool isServed = false;
 
 static Ball ball;
@@ -87,8 +87,35 @@ void update(float elapsed) {
   updatePlayer(elapsed);
 }
 
+void drawCenterLine(void) {
+  const int width = 3;
+  const int lineSegHeight = 20;
+  
+  Color centerLineColor = {
+    .r = 255,
+    .g = 255,
+    .b = 255,
+    .opacity = 64,
+  };
+
+  setDrawColor(renderer, centerLineColor);
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+  int drawPosition = 0;
+  while (drawPosition < HEIGHT){
+    SDL_Rect lineSegment = {
+      .x = WIDTH / 2  - width / 2,
+      .y = drawPosition,
+      .w = width,
+      .h = lineSegHeight,
+    };
+    SDL_RenderFillRect(renderer, &lineSegment);
+    drawPosition += 2 * lineSegHeight;
+  }
+}
+
 void draw(void) {
   clearRenderer(renderer, BLACK);
+  drawCenterLine();
 
   renderBall(&ball);
   renderPlayers();
@@ -142,7 +169,7 @@ int main(void) {
 bool coinFlip(void) { return rand() % 2 == 1 ? true : false; }
 
 Ball makeBall(int size) {
-  const float speed = 120;
+  const float speed = 255;
   Ball ball = {
       .x = (float)WIDTH / 2 - (float)size / 2,
       .y = (float)HEIGHT / 2 - (float)size / 2,
