@@ -26,15 +26,15 @@ typedef struct Player {
   float yPosition;
 } Player;
 
-const int PLAYER_WIDTH = 20;
-const int PLAYER_HEIGHT = 75;
-const int PLAYER_MARGIN = 10;
-const float PLAYER_MOVE_SPEED = 150.0f;
-bool isServed = false;
+static const int PLAYER_WIDTH = 20;
+static const int PLAYER_HEIGHT = 75;
+static const int PLAYER_MARGIN = 10;
+static const float PLAYER_MOVE_SPEED = 150.0f;
+static bool isServed = false;
 
-Ball ball;
-Player player1;
-Player player2;
+static Ball ball;
+static Player player1;
+static Player player2;
 
 bool initialize(void);
 void update(float);
@@ -48,12 +48,12 @@ void renderPlayers(void);
 void renderBall(const Ball *ball);
 void mainLoop(void);
 void updateScore(int player, int points);
-void renderScore(Player *player1, Player *player2);
 void serveBall(Ball *ball);
 void resetBall(Ball *ball);
+// TODO: void renderScore(Player *player1, Player *player2);
 
-SDL_Window *window = NULL;
-SDL_Renderer *renderer = NULL;
+static SDL_Window *window = NULL;
+static SDL_Renderer *renderer = NULL;
 
 bool initialize(void) {
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -144,8 +144,8 @@ bool coinFlip(void) { return rand() % 2 == 1 ? true : false; }
 Ball makeBall(int size) {
   const float speed = 120;
   Ball ball = {
-      .x = (float)WIDTH / 2 - (float)BALL_SIZE / 2,
-      .y = (float)HEIGHT / 2 - (float)BALL_SIZE / 2,
+      .x = (float)WIDTH / 2 - (float)size / 2,
+      .y = (float)HEIGHT / 2 - (float)size / 2,
       .size = size,
       .xSpeed = speed * (coinFlip() ? 1 : -1),
       .ySpeed = speed * (coinFlip() ? 1 : -1),
@@ -175,21 +175,21 @@ void updateBall(Ball *ball, float elapsed) {
   ball->x += ball->xSpeed * elapsed;
   ball->y += ball->ySpeed * elapsed;
 
-  if (ball->x < (float)BALL_SIZE / 2) {
+  if (ball->x < (float)ball->size / 2) {
     // player2 score
     updateScore(2, 1);
     resetBall(ball);
     isServed = false;
-  } else if (ball->x > WIDTH - (float)BALL_SIZE / 2) {
+  } else if (ball->x > WIDTH - (float)ball->size / 2) {
     // player1 score
     updateScore(1, 1);
     resetBall(ball);
     isServed = false;
   }
 
-  if (ball->y < (float)BALL_SIZE / 2) {
+  if (ball->y < (float)ball->size / 2) {
     ball->ySpeed = fabs(ball->ySpeed);
-  } else if (ball->y > HEIGHT - (float)BALL_SIZE / 2) {
+  } else if (ball->y > HEIGHT - (float)ball->size / 2) {
     ball->ySpeed = -fabs(ball->ySpeed);
   }
 }
@@ -292,6 +292,6 @@ void serveBall(Ball *ball) {
 }
 
 void resetBall(Ball *ball) {
-    ball->x = (float)WIDTH / 2 - (float)BALL_SIZE / 2;
-    ball->y = (float)HEIGHT / 2 - (float)BALL_SIZE / 2;
+    ball->x = (float)WIDTH / 2 - (float)ball->size / 2;
+    ball->y = (float)HEIGHT / 2 - (float)ball->size / 2;
 }
