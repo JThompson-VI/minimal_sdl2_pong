@@ -155,10 +155,10 @@ Ball makeBall(int size) {
 
 void renderBall(const Ball *ball) {
   int size = ball->size;
-  int halfSize = size / 2;
+  // int halfSize = size / 2;
   SDL_Rect rect = {
-      .x = ball->x - halfSize,
-      .y = ball->y - halfSize,
+      .x = ball->x,
+      .y = ball->y,
       .w = size,
       .h = size,
   };
@@ -168,34 +168,36 @@ void renderBall(const Ball *ball) {
 
 void updateBall(Ball *ball, float elapsed) {
   if (!isServed) {
-    ball->x = (float)WIDTH / 2;
-    ball->y = (float)HEIGHT / 2;
+    ball->x = (float)WIDTH / 2 - (float)ball->size / 2;
+    ball->y = (float)HEIGHT / 2 - (float)ball->size / 2;
     return;
   }
   ball->x += ball->xSpeed * elapsed;
   ball->y += ball->ySpeed * elapsed;
 
-  if (ball->x < (float)ball->size / 2) {
+  if (ball->x <= 0) {
     // player2 score
     updateScore(2, 1);
     resetBall(ball);
     isServed = false;
-  } else if (ball->x > WIDTH - (float)ball->size / 2) {
+  } else if (ball->x > WIDTH - ball->size) {
     // player1 score
     updateScore(1, 1);
     resetBall(ball);
     isServed = false;
   }
 
-  if (ball->y < (float)ball->size / 2) {
+  if (ball->y <= 0) {
     ball->ySpeed = fabs(ball->ySpeed);
-  } else if (ball->y > HEIGHT - (float)ball->size / 2) {
+  } else if (ball->y > HEIGHT - ball->size) {
     ball->ySpeed = -fabs(ball->ySpeed);
   }
 }
 
 Player makePlayer(void) {
-  Player player = {.yPosition = (float)HEIGHT / 2};
+  Player player = {
+      .yPosition = (float)HEIGHT / 2 - (float)PLAYER_HEIGHT / 2,
+  };
   return player;
 }
 
@@ -207,39 +209,37 @@ void updatePlayer(float elapsed) {
       serveBall(&ball);
     }
   }
-  if (keyboardState[SDL_SCANCODE_W] &&
-      player1.yPosition - (float)PLAYER_HEIGHT / 2 > 0) {
+  if (keyboardState[SDL_SCANCODE_W] && player1.yPosition > 0) {
     player1.yPosition -= PLAYER_MOVE_SPEED * elapsed;
   }
   if (keyboardState[SDL_SCANCODE_S] &&
-      player1.yPosition < HEIGHT - (float)PLAYER_HEIGHT / 2) {
+      player1.yPosition < HEIGHT - PLAYER_HEIGHT) {
     player1.yPosition += PLAYER_MOVE_SPEED * elapsed;
   }
-  if (keyboardState[SDL_SCANCODE_UP] &&
-      player2.yPosition - (float)PLAYER_HEIGHT / 2 > 0) {
+  if (keyboardState[SDL_SCANCODE_UP] && player2.yPosition > 0) {
     player2.yPosition -= PLAYER_MOVE_SPEED * elapsed;
   }
   if (keyboardState[SDL_SCANCODE_DOWN] &&
-      player2.yPosition < HEIGHT - (float)PLAYER_HEIGHT / 2) {
+      player2.yPosition < HEIGHT - PLAYER_HEIGHT) {
     player2.yPosition += PLAYER_MOVE_SPEED * elapsed;
   }
 
   SDL_Rect ballRect = {
-      .x = ball.x - (float)ball.size / 2,
-      .y = ball.y - (float)ball.size / 2,
+      .x = ball.x,
+      .y = ball.y,
       .w = ball.size,
       .h = ball.size,
   };
 
   SDL_Rect player1paddle = {
       .x = PLAYER_MARGIN,
-      .y = (int)player1.yPosition - PLAYER_HEIGHT / 2,
+      .y = player1.yPosition,
       .w = PLAYER_WIDTH,
       .h = PLAYER_HEIGHT,
   };
   SDL_Rect player2paddle = {
       .x = WIDTH - PLAYER_MARGIN - PLAYER_WIDTH,
-      .y = (int)player2.yPosition - PLAYER_HEIGHT / 2,
+      .y = player2.yPosition,
       .w = PLAYER_WIDTH,
       .h = PLAYER_HEIGHT,
   };
@@ -256,7 +256,7 @@ void renderPlayers(void) {
   setDrawColor(renderer, PLAYER_1COLOR);
   SDL_Rect player1paddle = {
       .x = PLAYER_MARGIN,
-      .y = (int)player1.yPosition - PLAYER_HEIGHT / 2,
+      .y = player1.yPosition,
       .w = PLAYER_WIDTH,
       .h = PLAYER_HEIGHT,
   };
@@ -265,7 +265,7 @@ void renderPlayers(void) {
   setDrawColor(renderer, PLAYER_2COLOR);
   SDL_Rect player2paddle = {
       .x = WIDTH - PLAYER_MARGIN - PLAYER_WIDTH,
-      .y = (int)player2.yPosition - PLAYER_HEIGHT / 2,
+      .y = player2.yPosition,
       .w = PLAYER_WIDTH,
       .h = PLAYER_HEIGHT,
   };
@@ -292,6 +292,6 @@ void serveBall(Ball *ball) {
 }
 
 void resetBall(Ball *ball) {
-    ball->x = (float)WIDTH / 2 - (float)ball->size / 2;
-    ball->y = (float)HEIGHT / 2 - (float)ball->size / 2;
+  ball->x = (float)WIDTH / 2 - (float)ball->size / 2;
+  ball->y = (float)HEIGHT / 2 - (float)ball->size / 2;
 }
