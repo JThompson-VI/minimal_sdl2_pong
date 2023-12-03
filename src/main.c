@@ -46,9 +46,11 @@ Player makePlayer(void);
 void updatePlayer(float);
 void renderPlayers(void);
 void renderBall(const Ball *ball);
-void mainLoop(SDL_Event);
+void mainLoop(void);
 void updateScore(int player, int points);
+void renderScore(Player *player1, Player *player2);
 void serveBall(Ball *ball);
+void resetBall(Ball *ball);
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -72,6 +74,8 @@ bool initialize(void) {
     fprintf(stderr, "Failed to initialize SDL renderer:%s\n", SDL_GetError());
     return false;
   }
+
+  srand(time(NULL));
   ball = makeBall(BALL_SIZE);
   player1 = makePlayer();
   player2 = makePlayer();
@@ -102,21 +106,20 @@ void shutdown(void) {
   SDL_Quit();
 }
 
-int main(void) {
-  srand(time(NULL));
-  atexit(shutdown);
-  if (initialize() == false) {
-    exit(1);
-  }
-
+void mainLoop(void) {
   bool quit = false;
   Uint32 lastTick = SDL_GetTicks();
 
   while (!quit) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT) {
+      switch (event.type) {
+      case SDL_QUIT:
         quit = true;
+        break;
+
+      case SDL_KEYDOWN:
+        break;
       }
     }
 
@@ -126,6 +129,14 @@ int main(void) {
     draw();
     lastTick = curTick;
   }
+}
+
+int main(void) {
+  atexit(shutdown);
+  if (initialize() == false) {
+    exit(1);
+  }
+  mainLoop();
 }
 
 bool coinFlip(void) { return rand() % 2 == 1 ? true : false; }
@@ -167,14 +178,12 @@ void updateBall(Ball *ball, float elapsed) {
   if (ball->x < (float)BALL_SIZE / 2) {
     // player2 score
     updateScore(2, 1);
-    ball->x = (float)WIDTH / 2 - (float)BALL_SIZE / 2;
-    ball->y = (float)HEIGHT / 2 - (float)BALL_SIZE / 2;
+    resetBall(ball);
     isServed = false;
   } else if (ball->x > WIDTH - (float)BALL_SIZE / 2) {
     // player1 score
     updateScore(1, 1);
-    ball->x = (float)WIDTH / 2 - (float)BALL_SIZE / 2;
-    ball->y = (float)HEIGHT / 2 - (float)BALL_SIZE / 2;
+    resetBall(ball);
     isServed = false;
   }
 
@@ -184,6 +193,7 @@ void updateBall(Ball *ball, float elapsed) {
     ball->ySpeed = -fabs(ball->ySpeed);
   }
 }
+
 Player makePlayer(void) {
   Player player = {.yPosition = (float)HEIGHT / 2};
   return player;
@@ -279,4 +289,9 @@ void serveBall(Ball *ball) {
   ball->xSpeed = ball->xSpeed * (coinFlip() ? 1 : -1);
   ball->ySpeed = ball->ySpeed * (coinFlip() ? 1 : -1);
   isServed = true;
+}
+
+void resetBall(Ball *ball) {
+    ball->x = (float)WIDTH / 2 - (float)BALL_SIZE / 2;
+    ball->y = (float)HEIGHT / 2 - (float)BALL_SIZE / 2;
 }
