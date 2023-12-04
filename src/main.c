@@ -101,6 +101,9 @@ void drawCenterLine(void) {
   setDrawColor(renderer, centerLineColor);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
   int drawPosition = 0;
+  int rectsLength = HEIGHT / lineSegHeight / 2 + 1;
+  SDL_Rect rects[rectsLength];
+  int rectsIndex = 0;
   while (drawPosition < HEIGHT){
     SDL_Rect lineSegment = {
       .x = WIDTH / 2  - width / 2,
@@ -108,9 +111,11 @@ void drawCenterLine(void) {
       .w = width,
       .h = lineSegHeight,
     };
-    SDL_RenderFillRect(renderer, &lineSegment);
+    rects[rectsIndex] = lineSegment;
+    rectsIndex++;
     drawPosition += 2 * lineSegHeight;
   }
+  SDL_RenderFillRects(renderer, rects, rectsLength);
 }
 
 void draw(void) {
