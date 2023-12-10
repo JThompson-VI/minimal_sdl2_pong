@@ -2,17 +2,17 @@
 
 #ifndef JT_COLORS_H
 #define JT_COLORS_H
-typedef struct Color {
+struct Color {
   int r;
   int g;
   int b;
-  int opacity;
-} Color;
+  int a;
+};
 
-const Color WHITE;
-const Color BLACK;
-const Color PLAYER_1COLOR;
-const Color PLAYER_2COLOR;
+extern const Color WHITE;
+extern const Color BLACK;
+extern const Color PLAYER_1COLOR;
+extern const Color PLAYER_2COLOR;
 
 int setDrawColor(SDL_Renderer *renderer, Color color);
 

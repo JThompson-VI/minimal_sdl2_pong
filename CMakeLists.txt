@@ -3,14 +3,16 @@ cmake_minimum_required(VERSION 3.12)
 set(PROJECT_NAME sdl2_pong)
 project(${PROJECT_NAME})
 
-set(SOURCE_FILES src/main.c src/utils/colors.c src/utils/misc.c)
-set(HEADER_FILES src/utils/colors.h src/utils/misc.h)
+set(SOURCE_FILES src/main.cpp src/utils/colors.cpp src/utils/misc.cpp)
+set(HEADER_FILES src/utils/colors.hpp src/utils/misc.hpp)
 
 add_executable(
   ${PROJECT_NAME}
   ${HEADER_FILES}
   ${SOURCE_FILES}
   )
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
 

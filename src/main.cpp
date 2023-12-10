@@ -6,8 +6,8 @@
 #include <sys/wait.h>
 #include <time.h>
 
-#include "utils/colors.h"
-#include "utils/misc.h"
+#include "utils/colors.hpp"
+#include "utils/misc.hpp"
 
 const int WIDTH = 640;
 const int HEIGHT = 400;
@@ -90,26 +90,21 @@ void update(float elapsed) {
 void drawCenterLine(void) {
   const int width = 3;
   const int lineSegHeight = 20;
-  
-  Color centerLineColor = {
-    .r = 255,
-    .g = 255,
-    .b = 255,
-    .opacity = 64,
-  };
+
+  Color centerLineColor = {255, 255, 255, 64};
 
   setDrawColor(renderer, centerLineColor);
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
   int drawPosition = 0;
   int rectsLength = HEIGHT / lineSegHeight / 2 + 1;
-  SDL_Rect rects[rectsLength];
+  SDL_Rect *rects = (SDL_Rect *)alloca(sizeof(SDL_Rect) * rectsLength);
   int rectsIndex = 0;
-  while (drawPosition < HEIGHT){
+  while (drawPosition < HEIGHT) {
     SDL_Rect lineSegment = {
-      .x = WIDTH / 2  - width / 2,
-      .y = drawPosition,
-      .w = width,
-      .h = lineSegHeight,
+        .x = WIDTH / 2 - width / 2,
+        .y = drawPosition,
+        .w = width,
+        .h = lineSegHeight,
     };
     rects[rectsIndex] = lineSegment;
     rectsIndex++;
@@ -178,9 +173,9 @@ Ball makeBall(int size) {
   Ball ball = {
       .x = (float)WIDTH / 2 - (float)size / 2,
       .y = (float)HEIGHT / 2 - (float)size / 2,
-      .size = size,
       .xSpeed = speed * (coinFlip() ? 1 : -1),
       .ySpeed = speed * (coinFlip() ? 1 : -1),
+      .size = size,
   };
   return ball;
 }
@@ -189,8 +184,8 @@ void renderBall(const Ball *ball) {
   int size = ball->size;
   // int halfSize = size / 2;
   SDL_Rect rect = {
-      .x = ball->x,
-      .y = ball->y,
+      .x = static_cast<int>(ball->x),
+      .y = static_cast<int>(ball->y),
       .w = size,
       .h = size,
   };
@@ -257,21 +252,21 @@ void updatePlayer(float elapsed) {
   }
 
   SDL_Rect ballRect = {
-      .x = ball.x,
-      .y = ball.y,
+      .x = static_cast<int>(ball.x),
+      .y = static_cast<int>(ball.y),
       .w = ball.size,
       .h = ball.size,
   };
 
   SDL_Rect player1paddle = {
       .x = PLAYER_MARGIN,
-      .y = player1.yPosition,
+      .y = static_cast<int>(player1.yPosition),
       .w = PLAYER_WIDTH,
       .h = PLAYER_HEIGHT,
   };
   SDL_Rect player2paddle = {
       .x = WIDTH - PLAYER_MARGIN - PLAYER_WIDTH,
-      .y = player2.yPosition,
+      .y = static_cast<int>(player2.yPosition),
       .w = PLAYER_WIDTH,
       .h = PLAYER_HEIGHT,
   };
@@ -288,7 +283,7 @@ void renderPlayers(void) {
   setDrawColor(renderer, PLAYER_1COLOR);
   SDL_Rect player1paddle = {
       .x = PLAYER_MARGIN,
-      .y = player1.yPosition,
+      .y = static_cast<int>(player1.yPosition),
       .w = PLAYER_WIDTH,
       .h = PLAYER_HEIGHT,
   };
@@ -297,7 +292,7 @@ void renderPlayers(void) {
   setDrawColor(renderer, PLAYER_2COLOR);
   SDL_Rect player2paddle = {
       .x = WIDTH - PLAYER_MARGIN - PLAYER_WIDTH,
-      .y = player2.yPosition,
+      .y = static_cast<int>(player2.yPosition),
       .w = PLAYER_WIDTH,
       .h = PLAYER_HEIGHT,
   };
@@ -312,7 +307,7 @@ void updateScore(int player, int points) {
   }
   const char *fmt = "PLAYER 1: %d | PLAYER 2: %d";
   int len = snprintf(NULL, 0, fmt, player1.score, player2.score);
-  char scoreLine[len + 1];
+  char *scoreLine = (char *)alloca(sizeof(int) * (len + 1));
   snprintf(scoreLine, len + 1, fmt, player1.score, player2.score);
   SDL_SetWindowTitle(window, scoreLine);
 }
