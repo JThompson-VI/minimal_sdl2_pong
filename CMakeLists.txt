@@ -15,7 +15,10 @@ add_executable(
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include_directories(${CMAKE_SOURCE_DIR})
 
 include_directories(/opt/homebrew/Cellar/sdl2/2.28.2/include)
 link_directories(/opt/homebrew/Cellar/sdl2/2.28.2/lib)

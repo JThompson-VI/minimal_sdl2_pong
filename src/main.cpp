@@ -3,8 +3,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <sys/wait.h>
 #include <time.h>
+#include <vector>
 
 #include "utils/colors.hpp"
 #include "utils/misc.hpp"
@@ -97,8 +99,7 @@ void drawCenterLine(void) {
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
   int drawPosition = 0;
   int rectsLength = HEIGHT / lineSegHeight / 2 + 1;
-  SDL_Rect *rects = (SDL_Rect *)alloca(sizeof(SDL_Rect) * rectsLength);
-  int rectsIndex = 0;
+  std::vector<SDL_Rect> rects;
   while (drawPosition < HEIGHT) {
     SDL_Rect lineSegment = {
         .x = WIDTH / 2 - width / 2,
@@ -106,11 +107,10 @@ void drawCenterLine(void) {
         .w = width,
         .h = lineSegHeight,
     };
-    rects[rectsIndex] = lineSegment;
-    rectsIndex++;
+    rects.push_back(lineSegment);
     drawPosition += 2 * lineSegHeight;
   }
-  SDL_RenderFillRects(renderer, rects, rectsLength);
+  SDL_RenderFillRects(renderer, rects.data(), rectsLength);
 }
 
 void draw(void) {
@@ -305,11 +305,9 @@ void updateScore(int player, int points) {
   } else if (player == 2) {
     player2.score += points;
   }
-  const char *fmt = "PLAYER 1: %d | PLAYER 2: %d";
-  int len = snprintf(NULL, 0, fmt, player1.score, player2.score);
-  char *scoreLine = (char *)alloca(sizeof(int) * (len + 1));
-  snprintf(scoreLine, len + 1, fmt, player1.score, player2.score);
-  SDL_SetWindowTitle(window, scoreLine);
+  std::string scoreLine = "PLAYER 1: " + std::to_string(player1.score) +
+                   " | PLAYER 2: " + std::to_string(player2.score);
+  SDL_SetWindowTitle(window, scoreLine.data());
 }
 
 void serveBall(Ball *ball) {
